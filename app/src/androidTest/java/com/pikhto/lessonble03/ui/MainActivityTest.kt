@@ -9,6 +9,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import com.pikhto.blin.BleManager
 import com.pikhto.blin.ScanIdling
 import com.pikhto.lessonble03.BleApp03
@@ -22,8 +23,10 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.system.exitProcess
 
 @RunWith(AndroidJUnit4::class)
+@LargeTest
 class MainActivityTest {
     @get: Rule
     val activityRule = ActivityScenarioRule(MainActivity::class.java)
@@ -46,8 +49,8 @@ class MainActivityTest {
 
     @After
     fun tearDown() {
-        activityRule.scenario.moveToState(Lifecycle.State.DESTROYED)
         IdlingRegistry.getInstance().unregister(bleManager.scanner.getScanIdling())
+        activityRule.scenario.moveToState(Lifecycle.State.DESTROYED)
     }
 
     /**

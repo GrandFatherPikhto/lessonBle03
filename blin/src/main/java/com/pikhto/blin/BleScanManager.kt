@@ -165,8 +165,9 @@ class BleScanManager constructor(private val bleManager: BleManager,
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
-        super.onDestroy(owner)
         bleManager.applicationContext.unregisterReceiver(bcScanReceiver)
+        stopScan()
+        super.onDestroy(owner)
     }
 
     private fun initScanFilters() {
