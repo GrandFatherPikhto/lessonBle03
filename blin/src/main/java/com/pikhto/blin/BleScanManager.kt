@@ -16,10 +16,8 @@ import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
+import kotlin.math.log
 
 class BleScanManager constructor(private val bleManager: BleManager,
                                  ioDispatcher: CoroutineDispatcher = Dispatchers.IO)
@@ -72,6 +70,23 @@ class BleScanManager constructor(private val bleManager: BleManager,
     private val names = mutableListOf<String>()
     private val uuids = mutableListOf<ParcelUuid>()
 
+    private var scanIdling:ScanIdling? = null
+
+    fun getScanIdling() : ScanIdling {
+        val idling = ScanIdling.getInstance()
+        if (scanIdling == null) {
+            scanIdling = idling
+            scope.launch {
+                scanIdling?.let { idling ->
+                    flowDevice.collect {
+                        idling.scanned = true
+                    }
+                }
+            }
+        }
+        return idling
+    }
+
     init {
         initScanSettings()
         initScanFilters()
@@ -88,6 +103,8 @@ class BleScanManager constructor(private val bleManager: BleManager,
         if (state == State.Error) {
             mutableStateFlowScanning.tryEmit(State.Stopped)
         }
+
+        scanIdling?.scanned = false
 
         if (state == State.Stopped) {
             // devices.clear()
