@@ -39,6 +39,7 @@ class MainActivityTest {
         activityRule.scenario.onActivity {
 
         }
+        activityRule.scenario.moveToState(Lifecycle.State.CREATED)
         activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
         IdlingRegistry.getInstance().register(bleManager.scanner.getScanIdling())
     }
