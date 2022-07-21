@@ -181,7 +181,7 @@ class BleScanManager constructor(private val bleManager: BleManager,
         if (filterName(bluetoothDevice)
                 .and(filterAddress(bluetoothDevice))
                 .and(filterUuids(bluetoothDevice.uuids))
-        )
+        ) {
             if (notEmitRepeat) {
                 if (!scannedDevices.contains(bluetoothDevice)) {
                     mutableSharedFlowDevice.tryEmit(bluetoothDevice)
@@ -190,6 +190,11 @@ class BleScanManager constructor(private val bleManager: BleManager,
             } else {
                 mutableSharedFlowDevice.tryEmit(bluetoothDevice)
             }
+
+            if (stopOnFind) {
+                stopScan()
+            }
+        }
     }
 
     /**

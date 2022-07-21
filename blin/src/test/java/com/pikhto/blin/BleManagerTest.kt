@@ -13,6 +13,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,11 +43,48 @@ class BleManagerTest {
         closeable.close()
     }
 
+    private val bleManager =
+        BleManager(ApplicationProvider.getApplicationContext<Context?>().applicationContext,
+            UnconfinedTestDispatcher())
+
+    /**
+     * Проверяет состояние после запуска сканирования.
+     * "Запускает" набор сгенерированных BluetoothDevices
+     * и проверяет список отфильтрованных устройств на совпадение
+     * Останавливает сканирование и проверяет состояние flowState
+     */
     @Test
-    fun testBluetoothDevice() = runTest(UnconfinedTestDispatcher()) {
+    fun testScan() = runTest(UnconfinedTestDispatcher()) {
         val intent = mockRandomIntentScanResults(7, "Bluetooth%02d")
-        intent.toBluetoothDevices().forEach {
-            println("BluetoothDevice: ${it.name}")
-        }
+        bleManager.startScan()
+        assertEquals(BleScanManager.State.Scanning, bleManager.scanState)
+        bleManager.scanner.onReceiveScanResult(intent)
+        assertEquals(bleManager.scanner.devices, intent.toBluetoothDevices())
+        bleManager.stopScan()
+        assertEquals(BleScanManager.State.Stopped, bleManager.scanState)
+    }
+
+    @Test
+    fun testFilterScanNameWithStop() = runTest(UnconfinedTestDispatcher()) {
+        val number = 2
+        val intent = mockRandomIntentScanResults(7, "Bluetooth%02d")
+        bleManager.startScan(names = listOf(intent.toBluetoothDevices()[number].name),
+            stopOnFind = true)
+        assertEquals(BleScanManager.State.Scanning, bleManager.scanState)
+        bleManager.scanner.onReceiveScanResult(intent)
+        assertEquals(bleManager.scanner.devices, listOf(intent.toBluetoothDevices()[number]))
+        assertEquals(BleScanManager.State.Stopped, bleManager.scanState)
+    }
+
+    @Test
+    fun testFilterScanAddressWithStop() = runTest(UnconfinedTestDispatcher()) {
+        val number = 2
+        val intent = mockRandomIntentScanResults(7, "Bluetooth%02d")
+        bleManager.startScan(addresses = listOf(intent.toBluetoothDevices()[number].address),
+            stopOnFind = true)
+        assertEquals(BleScanManager.State.Scanning, bleManager.scanState)
+        bleManager.scanner.onReceiveScanResult(intent)
+        assertEquals(bleManager.scanner.devices, listOf(intent.toBluetoothDevices()[number]))
+        assertEquals(BleScanManager.State.Stopped, bleManager.scanState)
     }
 }

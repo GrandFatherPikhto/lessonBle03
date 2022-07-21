@@ -19,6 +19,8 @@ class BleManager constructor(private val context: Context,
     val flowScanDevice get() = bleScanManager.flowDevice
     val scannedDevices get() = bleScanManager.devices
 
+    val scanner get() = bleScanManager
+
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
         owner.lifecycle.addObserver(bleScanManager)
