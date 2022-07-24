@@ -76,6 +76,7 @@ class DeviceFragment : Fragment() {
                 } else {
                     includeLayout.ivConnectable.setImageResource(R.drawable.ic_no_connectable)
                 }
+                Log.d(logTag, "UUIDs: ${scanResult.device.uuids}")
             }
 
             rvBtUuids.adapter = rvUuidsAdapter
