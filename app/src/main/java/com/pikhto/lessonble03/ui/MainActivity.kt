@@ -2,7 +2,6 @@ package com.pikhto.lessonble03.ui
 
 import android.os.Bundle
 import android.util.Log
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -18,7 +17,7 @@ import androidx.core.view.MenuProvider
 import androidx.lifecycle.lifecycleScope
 import com.pikhto.blin.BleManager
 import com.pikhto.blin.permission.RequestPermissions
-import com.pikhto.lessonble03.BleApp03
+import com.pikhto.lessonble03.LessonBle03App
 import com.pikhto.lessonble03.R
 import com.pikhto.lessonble03.databinding.ActivityMainBinding
 import com.pikhto.lessonble03.ui.models.MainActivityViewModel
@@ -35,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     private val bleManager:BleManager by lazy {
         BleManager(applicationContext).let {
-            (applicationContext as BleApp03).bleManager = it
+            (applicationContext as LessonBle03App).bleManager = it
             it
         }
     }
@@ -58,7 +57,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         lifecycle.addObserver(bleManager)
-        Log.d(logTag, "bleManager = ${(applicationContext as BleApp03).bleManager}")
+        Log.d(logTag, "bleManager = ${(applicationContext as LessonBle03App).bleManager}")
 
         requestPermissions()
 

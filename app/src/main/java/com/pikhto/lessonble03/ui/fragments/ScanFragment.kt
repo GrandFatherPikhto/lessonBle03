@@ -13,10 +13,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.pikhto.blin.BleManager
 import com.pikhto.blin.BleScanManager
-import com.pikhto.lessonble03.BleApp03
+import com.pikhto.lessonble03.LessonBle03App
 import com.pikhto.lessonble03.R
 import com.pikhto.lessonble03.databinding.FragmentScanBinding
 import com.pikhto.lessonble03.ui.fragments.adapters.RvBtAdapter
+import com.pikhto.lessonble03.ui.models.BleViewModelProviderFactory
 import com.pikhto.lessonble03.ui.models.MainActivityViewModel
 import com.pikhto.lessonble03.ui.models.ScanViewModel
 import kotlinx.coroutines.launch
@@ -36,10 +37,12 @@ class ScanFragment : Fragment() {
     private val rvBtAdapter = RvBtAdapter()
 
     private val mainActivityViewModel by activityViewModels<MainActivityViewModel>()
-    private val scanViewModel by viewModels<ScanViewModel>()
+    private val scanViewModel by viewModels<ScanViewModel> {
+        BleViewModelProviderFactory(requireActivity().application)
+    }
 
     private val _bleManager:BleManager? by lazy {
-        (requireContext().applicationContext as BleApp03).bleManager
+        (requireContext().applicationContext as LessonBle03App).bleManager
     }
     private val bleManager get() = _bleManager!!
 
@@ -91,7 +94,6 @@ class ScanFragment : Fragment() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        listenBleScan()
         super.onCreate(savedInstanceState)
     }
 
@@ -101,7 +103,7 @@ class ScanFragment : Fragment() {
     ): View {
 
         _binding = FragmentScanBinding.inflate(inflater, container, false)
-        Log.d(logTag, "onCreateView(${(requireContext().applicationContext as BleApp03).bleManager})")
+        Log.d(logTag, "onCreateView(${(requireContext().applicationContext as LessonBle03App).bleManager})")
         linkMenu(true)
         binding.apply {
             rvBtDevices.adapter = rvBtAdapter
@@ -125,7 +127,7 @@ class ScanFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d(logTag, "onViewCreated(${(requireContext().applicationContext as BleApp03).bleManager})")
+        Log.d(logTag, "onViewCreated(${(requireContext().applicationContext as LessonBle03App).bleManager})")
     }
 
     override fun onDestroyView() {
@@ -141,26 +143,6 @@ class ScanFragment : Fragment() {
                 it.addMenuProvider(menuProvider)
             } else {
                 it.removeMenuProvider(menuProvider)
-            }
-        }
-    }
-
-    private fun listenBleScan() {
-        lifecycleScope.launch {
-            bleManager.flowScanDevice.collect { scanResult ->
-               scanViewModel.addScanResult(scanResult)
-            }
-        }
-
-        lifecycleScope.launch {
-            bleManager.flowScanState.collect { scanState ->
-                scanViewModel.changeScanState(scanState)
-            }
-        }
-
-        lifecycleScope.launch {
-            bleManager.flowScanError.collect { scanError ->
-                scanViewModel.changeScanError(scanError)
             }
         }
     }

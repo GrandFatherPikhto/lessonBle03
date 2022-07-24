@@ -10,7 +10,7 @@ import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.pikhto.lessonble03.BleApp03
+import com.pikhto.lessonble03.LessonBle03App
 import com.pikhto.lessonble03.R
 import com.pikhto.lessonble03.databinding.FragmentDeviceBinding
 import com.pikhto.lessonble03.ui.fragments.adapters.RvUuidsAdapter
@@ -30,7 +30,7 @@ class DeviceFragment : Fragment() {
 
     private val mainActivityViewModel by activityViewModels<MainActivityViewModel>()
     private val bleManager by lazy {
-        (requireContext().applicationContext as BleApp03).bleManager }
+        (requireContext().applicationContext as LessonBle03App).bleManager }
     private val rvUuidsAdapter = RvUuidsAdapter()
 
     private val menuProvider = object : MenuProvider {
@@ -59,15 +59,21 @@ class DeviceFragment : Fragment() {
 
         _binding = FragmentDeviceBinding.inflate(inflater, container, false)
         binding.apply {
-            mainActivityViewModel.device?.let { bluetoothDevice ->
+            mainActivityViewModel.scanResult?.let { scanResult ->
                 includeLayout.tvDeviceName.text =
-                    bluetoothDevice.name ?: requireContext().getString(R.string.unknown_device)
+                    scanResult.device.name ?: requireContext().getString(R.string.unknown_device)
                 includeLayout.tvDeviceAddress.text =
-                    bluetoothDevice.address
-                if (bluetoothDevice.bondState == BluetoothDevice.BOND_BONDED) {
+                    scanResult.device.address
+                includeLayout.tvRssi.text = getString(R.string.rssi_title, scanResult.rssi)
+                if (scanResult.device.bondState == BluetoothDevice.BOND_BONDED) {
                     includeLayout.ivBondState.setImageResource(R.drawable.ic_paired)
                 } else {
                     includeLayout.ivBondState.setImageResource(R.drawable.ic_unpaired)
+                }
+                if (scanResult.isConnectable) {
+                    includeLayout.ivConnectable.setImageResource(R.drawable.ic_connectable)
+                } else {
+                    includeLayout.ivConnectable.setImageResource(R.drawable.ic_no_connectable)
                 }
             }
 

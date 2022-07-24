@@ -12,7 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.LessonBle03"
-        android:name=".BleApp03"
+        android:name=".LessonBle03App"
         tools:targetApi="31">
         <activity
             android:name=".ui.MainActivity"

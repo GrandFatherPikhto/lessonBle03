@@ -11,19 +11,14 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.pikhto.blin.BleManager
-import com.pikhto.blin.ScanIdling
-import com.pikhto.lessonble03.BleApp03
+import com.pikhto.lessonble03.LessonBle03App
 import com.pikhto.lessonble03.R
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.system.exitProcess
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -32,7 +27,7 @@ class MainActivityTest {
     val activityRule = ActivityScenarioRule(MainActivity::class.java)
 
     private val _bleManager:BleManager? by lazy {
-        (ApplicationProvider.getApplicationContext() as BleApp03).bleManager
+        (ApplicationProvider.getApplicationContext() as LessonBle03App).bleManager
     }
 
     private val bleManager get() = _bleManager!!
@@ -65,7 +60,7 @@ class MainActivityTest {
     @Test(timeout = 10000)
     fun scanTwoDevicesAndClickDevice() {
         val unknownDevice = ApplicationProvider
-            .getApplicationContext<BleApp03>()
+            .getApplicationContext<LessonBle03App>()
             .getString(R.string.unknown_device)
 
         onView(withId(R.id.rv_bt_devices)).check(matches(isDisplayed()))
