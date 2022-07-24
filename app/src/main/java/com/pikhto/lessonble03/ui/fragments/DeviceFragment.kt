@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.pikhto.lessonble03.LessonBle03App
 import com.pikhto.lessonble03.R
 import com.pikhto.lessonble03.databinding.FragmentDeviceBinding
+import com.pikhto.lessonble03.helper.linkMenu
 import com.pikhto.lessonble03.ui.fragments.adapters.RvUuidsAdapter
 import com.pikhto.lessonble03.ui.models.MainActivityViewModel
 
@@ -55,7 +56,7 @@ class DeviceFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         _binding = FragmentDeviceBinding.inflate(inflater, container, false)
         binding.apply {
@@ -85,7 +86,7 @@ class DeviceFragment : Fragment() {
             rvUuidsAdapter.bluetoothDevice = bluetoothDevice
         }
 
-        linkMenu(true)
+        linkMenu(true, menuProvider)
 
         return binding.root
     }
@@ -97,17 +98,7 @@ class DeviceFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        linkMenu(false)
+        linkMenu(false, menuProvider)
         _binding = null
-    }
-
-    private fun linkMenu(link: Boolean) {
-        (requireActivity() as MenuHost).let {
-            if (link) {
-                it.addMenuProvider(menuProvider)
-            } else {
-                it.removeMenuProvider(menuProvider)
-            }
-        }
     }
 }

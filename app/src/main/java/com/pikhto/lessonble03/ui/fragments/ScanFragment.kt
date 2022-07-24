@@ -16,6 +16,7 @@ import com.pikhto.blin.BleScanManager
 import com.pikhto.lessonble03.LessonBle03App
 import com.pikhto.lessonble03.R
 import com.pikhto.lessonble03.databinding.FragmentScanBinding
+import com.pikhto.lessonble03.helper.linkMenu
 import com.pikhto.lessonble03.ui.fragments.adapters.RvBtAdapter
 import com.pikhto.lessonble03.ui.models.BleViewModelProviderFactory
 import com.pikhto.lessonble03.ui.models.MainActivityViewModel
@@ -104,7 +105,7 @@ class ScanFragment : Fragment() {
 
         _binding = FragmentScanBinding.inflate(inflater, container, false)
         Log.d(logTag, "onCreateView(${(requireContext().applicationContext as LessonBle03App).bleManager})")
-        linkMenu(true)
+        linkMenu(true, menuProvider)
         binding.apply {
             rvBtDevices.adapter = rvBtAdapter
             rvBtDevices.layoutManager = LinearLayoutManager(requireContext())
@@ -132,18 +133,8 @@ class ScanFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        linkMenu(false)
+        linkMenu(false, menuProvider)
         bleManager.stopScan()
         _binding = null
-    }
-
-    private fun linkMenu(link:Boolean = true) {
-        (requireActivity() as MenuHost).let {
-            if (link) {
-                it.addMenuProvider(menuProvider)
-            } else {
-                it.removeMenuProvider(menuProvider)
-            }
-        }
     }
 }

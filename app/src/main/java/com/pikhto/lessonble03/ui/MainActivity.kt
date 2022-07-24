@@ -20,6 +20,7 @@ import com.pikhto.blin.permission.RequestPermissions
 import com.pikhto.lessonble03.LessonBle03App
 import com.pikhto.lessonble03.R
 import com.pikhto.lessonble03.databinding.ActivityMainBinding
+import com.pikhto.lessonble03.helper.linkMenu
 import com.pikhto.lessonble03.ui.models.MainActivityViewModel
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -70,7 +71,7 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        linkMenu(true)
+        linkMenu(true, menuProvider)
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -80,18 +81,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        linkMenu(false)
+        linkMenu(false, menuProvider)
         super.onDestroy()
-    }
-
-    private fun linkMenu(link: Boolean = true) {
-        (this as MenuHost).let {
-            if(link) {
-                it.addMenuProvider(menuProvider)
-            } else {
-                it.removeMenuProvider(menuProvider)
-            }
-        }
     }
 
     private fun requestPermissions() {
