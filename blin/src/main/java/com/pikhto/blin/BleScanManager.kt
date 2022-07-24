@@ -17,7 +17,6 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlin.math.log
 
 class BleScanManager constructor(private val bleManager: BleManager,
                                  ioDispatcher: CoroutineDispatcher = Dispatchers.IO)
@@ -35,33 +34,26 @@ class BleScanManager constructor(private val bleManager: BleManager,
 
     private val logTag = this.javaClass.simpleName
 
-
-
     private val mutableStateFlowScanning = MutableStateFlow(State.Stopped)
     val flowState get() = mutableStateFlowScanning.asStateFlow()
     private val state get() = mutableStateFlowScanning.value
 
-    private val mutableSharedFlowDevice = MutableSharedFlow<BluetoothDevice>(replay = 100)
-    val flowDevice get() = mutableSharedFlowDevice.asSharedFlow()
+    private val mutableSharedFlowScanResult = MutableSharedFlow<ScanResult>(replay = 100)
+    val flowDevice get() = mutableSharedFlowScanResult.asSharedFlow()
 
     private val mutableStateFlowError = MutableStateFlow<Int>(-1)
     val stateFlowError get() = mutableStateFlowError.asStateFlow()
     val valueError get() = mutableStateFlowError.value
     private var bleScanPendingIntent:PendingIntent = bcScanReceiver.pendingIntent
 
-
-    private val bluetoothLeScanner by lazy {
-        (applicationContext.getSystemService(Context.BLUETOOTH_SERVICE)
-                as BluetoothManager).adapter.bluetoothLeScanner
-    }
-
     private val scanFilters = mutableListOf<ScanFilter>()
     private val scanSettingsBuilder = ScanSettings.Builder()
 
     private var scope = CoroutineScope(ioDispatcher)
     private var notEmitRepeat: Boolean = true
-    private val scannedDevices = mutableListOf<BluetoothDevice>()
-    val devices get() = scannedDevices.toList()
+    private val scannedResults = mutableListOf<ScanResult>()
+    val devices get() = scannedResults.map { it.device }.toList()
+    val results get() = scannedResults.toList()
 
     private var stopOnFind = false
     private var stopTimeout = 0L
@@ -132,7 +124,7 @@ class BleScanManager constructor(private val bleManager: BleManager,
                 }
             }
 
-            val result = bluetoothLeScanner.startScan(
+            val result = bleManager.leScanner.startScan(
                 scanFilters,
                 scanSettingsBuilder.build(),
                 bleScanPendingIntent
@@ -152,7 +144,7 @@ class BleScanManager constructor(private val bleManager: BleManager,
     fun stopScan() {
         if (state == State.Scanning) {
             Log.d(logTag, "stopScan()")
-            bluetoothLeScanner.stopScan(bleScanPendingIntent)
+            bleManager.leScanner.stopScan(bleScanPendingIntent)
             mutableStateFlowScanning.tryEmit(State.Stopped)
         }
     }
@@ -194,23 +186,30 @@ class BleScanManager constructor(private val bleManager: BleManager,
         return false
     }
 
+    private fun isNewDevice(scanResult: ScanResult) : Boolean {
+        scanResult.device.let { bluetoothDevice ->
+            if (!devices.contains(bluetoothDevice)) {
+                scannedResults.add(scanResult)
+                return  true
+            }
+        }
+        return false
+    }
+
     @SuppressLint("MissingPermission")
-    private fun filterDevice (bluetoothDevice: BluetoothDevice) {
-        if (filterName(bluetoothDevice)
+    private fun filterDevice (scanResult: ScanResult) {
+        scanResult.device.let { bluetoothDevice ->
+            if (filterName(bluetoothDevice)
                 .and(filterAddress(bluetoothDevice))
                 .and(filterUuids(bluetoothDevice.uuids))
-        ) {
-            if (notEmitRepeat) {
-                if (!scannedDevices.contains(bluetoothDevice)) {
-                    mutableSharedFlowDevice.tryEmit(bluetoothDevice)
-                    scannedDevices.add(bluetoothDevice)
+            ) {
+                if (!notEmitRepeat || isNewDevice(scanResult)) {
+                    mutableSharedFlowScanResult.tryEmit(scanResult)
                 }
-            } else {
-                mutableSharedFlowDevice.tryEmit(bluetoothDevice)
-            }
 
-            if (stopOnFind) {
-                stopScan()
+                if (stopOnFind) {
+                    stopScan()
+                }
             }
         }
     }
@@ -244,7 +243,7 @@ class BleScanManager constructor(private val bleManager: BleManager,
                         results.forEach { result ->
                             result.device?.let { device ->
                                 Log.d(logTag, "Device: $device")
-                                filterDevice(device)
+                                filterDevice(result)
                             }
                         }
                     }

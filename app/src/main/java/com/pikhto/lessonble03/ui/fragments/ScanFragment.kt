@@ -7,6 +7,7 @@ import androidx.core.view.MenuHost
 import androidx.fragment.app.Fragment
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,6 +18,7 @@ import com.pikhto.lessonble03.R
 import com.pikhto.lessonble03.databinding.FragmentScanBinding
 import com.pikhto.lessonble03.ui.fragments.adapters.RvBtAdapter
 import com.pikhto.lessonble03.ui.models.MainActivityViewModel
+import com.pikhto.lessonble03.ui.models.ScanViewModel
 import kotlinx.coroutines.launch
 
 /**
@@ -34,6 +36,7 @@ class ScanFragment : Fragment() {
     private val rvBtAdapter = RvBtAdapter()
 
     private val mainActivityViewModel by activityViewModels<MainActivityViewModel>()
+    private val scanViewModel by viewModels<ScanViewModel>()
 
     private val _bleManager:BleManager? by lazy {
         (requireContext().applicationContext as BleApp03).bleManager
@@ -45,7 +48,7 @@ class ScanFragment : Fragment() {
             menuInflater.inflate(R.menu.menu_scan, menu)
             menu.findItem(R.id.action_scan)?.let { actionScan ->
                 lifecycleScope.launch {
-                    bleManager.flowScanState.collect { state ->
+                    scanViewModel.stateFlowScanState.collect { state ->
                         when (state) {
                             BleScanManager.State.Stopped -> {
                                 actionScan.title = getString(R.string.start_scan)
@@ -67,7 +70,7 @@ class ScanFragment : Fragment() {
         override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
             return when(menuItem.itemId) {
                 R.id.action_scan -> {
-                    when(bleManager.scanState) {
+                    when(scanViewModel.scanState) {
                         BleScanManager.State.Stopped -> {
                             bleManager.startScan(stopTimeout = 10000L)
                         }
@@ -88,14 +91,14 @@ class ScanFragment : Fragment() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(logTag, "onCreate(${(requireContext().applicationContext as BleApp03).bleManager})")
+        listenBleScan()
         super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         _binding = FragmentScanBinding.inflate(inflater, container, false)
         Log.d(logTag, "onCreateView(${(requireContext().applicationContext as BleApp03).bleManager})")
@@ -105,14 +108,14 @@ class ScanFragment : Fragment() {
             rvBtDevices.layoutManager = LinearLayoutManager(requireContext())
         }
 
-        rvBtAdapter.setItemOnClickListener { bluetoothDevice, _ ->
-            mainActivityViewModel.emitDevice(bluetoothDevice)
+        rvBtAdapter.setItemOnClickListener { scanResult, _ ->
+            mainActivityViewModel.changeScanResult(scanResult)
             findNavController().navigate(R.id.action_scanFragment_to_deviceFragment)
         }
 
         lifecycleScope.launch {
             bleManager.flowScanDevice.collect { bluetoothDevice ->
-                rvBtAdapter.addDevice(bluetoothDevice)
+                rvBtAdapter.addScanResult(bluetoothDevice)
             }
         }
 
@@ -138,6 +141,26 @@ class ScanFragment : Fragment() {
                 it.addMenuProvider(menuProvider)
             } else {
                 it.removeMenuProvider(menuProvider)
+            }
+        }
+    }
+
+    private fun listenBleScan() {
+        lifecycleScope.launch {
+            bleManager.flowScanDevice.collect { scanResult ->
+               scanViewModel.addScanResult(scanResult)
+            }
+        }
+
+        lifecycleScope.launch {
+            bleManager.flowScanState.collect { scanState ->
+                scanViewModel.changeScanState(scanState)
+            }
+        }
+
+        lifecycleScope.launch {
+            bleManager.flowScanError.collect { scanError ->
+                scanViewModel.changeScanError(scanError)
             }
         }
     }

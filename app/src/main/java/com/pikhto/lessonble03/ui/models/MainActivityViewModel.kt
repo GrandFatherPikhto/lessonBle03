@@ -1,16 +1,18 @@
 package com.pikhto.lessonble03.ui.models
 
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.le.ScanResult
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class MainActivityViewModel : ViewModel() {
-    private val mutableStateFlowDevice = MutableStateFlow<BluetoothDevice?>(null)
-    val stateFlowDevice get() = mutableStateFlowDevice.asStateFlow()
-    val device get() = mutableStateFlowDevice.value
+    private val mutableStateFlowScanResult = MutableStateFlow<ScanResult?>(null)
+    val stateFlowScanResult get() = mutableStateFlowScanResult.asStateFlow()
+    val scanResult get() = mutableStateFlowScanResult.value
+    val device get() = mutableStateFlowScanResult.value?.device
 
-    fun emitDevice(bluetoothDevice: BluetoothDevice) {
-        mutableStateFlowDevice.tryEmit(bluetoothDevice)
+    fun changeScanResult(scanResult: ScanResult) {
+        mutableStateFlowScanResult.tryEmit(scanResult)
     }
 }

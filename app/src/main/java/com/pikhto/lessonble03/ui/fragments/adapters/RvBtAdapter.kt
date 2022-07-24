@@ -1,6 +1,7 @@
 package com.pikhto.lessonble03.ui.fragments.adapters
 
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.le.ScanResult
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,9 +12,9 @@ typealias ItemOnClickListener<T> = (T, View) -> Unit
 typealias ItemOnLongClickListener<T> = (T, View) -> Unit
 
 class RvBtAdapter : RecyclerView.Adapter<RvBtHolder> () {
-    private val devices = mutableListOf<BluetoothDevice>()
-    private var itemOnClickListener: ItemOnClickListener<BluetoothDevice>? = null
-    private var itemOnLongClickListener: ItemOnLongClickListener<BluetoothDevice>? = null
+    private val scanResults = mutableListOf<ScanResult>()
+    private var itemOnClickListener: ItemOnClickListener<ScanResult>? = null
+    private var itemOnLongClickListener: ItemOnLongClickListener<ScanResult>? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RvBtHolder {
         val view = LayoutInflater.from(parent.context)
@@ -24,32 +25,32 @@ class RvBtAdapter : RecyclerView.Adapter<RvBtHolder> () {
     override fun onBindViewHolder(holder: RvBtHolder, position: Int) {
         holder.itemView.setOnClickListener { view ->
             itemOnClickListener?.let { listener ->
-                listener(devices[position], view)
+                listener(scanResults[position], view)
             }
         }
         holder.itemView.setOnLongClickListener { view ->
             itemOnLongClickListener?.let { listener ->
-                listener(devices[position], view)
+                listener(scanResults[position], view)
             }
             true
         }
-        holder.bind(devices[position])
+        holder.bind(scanResults[position])
     }
 
-    override fun getItemCount(): Int = devices.size
+    override fun getItemCount(): Int = scanResults.size
 
-    fun addDevice(bluetoothDevice: BluetoothDevice) {
-        if (!devices.contains(bluetoothDevice)) {
-            devices.add(bluetoothDevice)
-            notifyItemInserted(devices.indexOf(bluetoothDevice))
+    fun addScanResult(scanResult: ScanResult) {
+        if (!scanResults.map { it.device }.contains(scanResult.device)) {
+            scanResults.add(scanResult)
+            notifyItemInserted(scanResults.indexOf(scanResult))
         }
     }
 
-    fun setItemOnClickListener(itemOnClickListener: ItemOnClickListener<BluetoothDevice>) {
+    fun setItemOnClickListener(itemOnClickListener: ItemOnClickListener<ScanResult>) {
         this.itemOnClickListener = itemOnClickListener
     }
 
-    fun setItemOnLongCliclListener(itemOnLongClickListener: ItemOnLongClickListener<BluetoothDevice>) {
+    fun setItemOnLongCliclListener(itemOnLongClickListener: ItemOnLongClickListener<ScanResult>) {
         this.itemOnLongClickListener = itemOnLongClickListener
     }
 }

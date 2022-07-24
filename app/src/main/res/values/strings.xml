@@ -14,4 +14,6 @@
     <string name="description_bond_state">Bonding State</string>
     <string name="default_uuid" translatable="false">123e4567-e89b-12d3-a456-426614174000</string>
     <string name="action_to_scanner">To scanner</string>
+    <string name="description_connectable">Is BLE device connectable</string>
+    <string name="rssi_title" translatable="false">RSSI: %1$d</string>
 </resources>

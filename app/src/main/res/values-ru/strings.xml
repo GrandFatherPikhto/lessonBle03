@@ -11,4 +11,5 @@
     <string name="scan_fragment_label">Сканнер</string>
     <string name="device_fragment_label">Устройство BLE</string>
     <string name="action_to_scanner">К сканнеру</string>
+    <string name="description_connectable">Подключаемое</string>
 </resources>
