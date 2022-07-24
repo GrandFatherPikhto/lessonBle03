@@ -9,7 +9,7 @@
 
     <include
         android:id="@+id/include_layout"
-        layout="@layout/layout_bt_device"
+        layout="@layout/layout_ble_device"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"

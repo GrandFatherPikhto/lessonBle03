@@ -7,11 +7,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.recyclerview.widget.RecyclerView
 import com.pikhto.lessonble03.R
-import com.pikhto.lessonble03.databinding.LayoutBtDeviceBinding
+import com.pikhto.lessonble03.databinding.LayoutBleDeviceBinding
 
 
 class RvBtHolder(view: View) : RecyclerView.ViewHolder(view) {
-    private val binding = LayoutBtDeviceBinding.bind(view)
+    private val binding = LayoutBleDeviceBinding.bind(view)
 
     fun bind(scanResult: ScanResult) {
         binding.apply {

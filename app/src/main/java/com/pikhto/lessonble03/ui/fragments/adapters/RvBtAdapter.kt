@@ -1,6 +1,5 @@
 package com.pikhto.lessonble03.ui.fragments.adapters
 
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanResult
 import android.view.LayoutInflater
 import android.view.View
@@ -18,7 +17,7 @@ class RvBtAdapter : RecyclerView.Adapter<RvBtHolder> () {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RvBtHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.layout_bt_device, parent, false)
+            .inflate(R.layout.layout_ble_device, parent, false)
         return RvBtHolder(view)
     }
 
