@@ -3,7 +3,6 @@ package com.pikhto.blin
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothManager
 import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
@@ -35,15 +34,15 @@ class BleScanManager constructor(private val bleManager: BleManager,
     private val logTag = this.javaClass.simpleName
 
     private val mutableStateFlowScanning = MutableStateFlow(State.Stopped)
-    val flowState get() = mutableStateFlowScanning.asStateFlow()
+    val stateFlowScanState get() = mutableStateFlowScanning.asStateFlow()
     private val state get() = mutableStateFlowScanning.value
 
     private val mutableSharedFlowScanResult = MutableSharedFlow<ScanResult>(replay = 100)
-    val flowDevice get() = mutableSharedFlowScanResult.asSharedFlow()
+    val sharedFlowScanResult get() = mutableSharedFlowScanResult.asSharedFlow()
 
     private val mutableStateFlowError = MutableStateFlow<Int>(-1)
     val stateFlowError get() = mutableStateFlowError.asStateFlow()
-    val valueError get() = mutableStateFlowError.value
+    val scanError get() = mutableStateFlowError.value
     private var bleScanPendingIntent:PendingIntent = bcScanReceiver.pendingIntent
 
     private val scanFilters = mutableListOf<ScanFilter>()
@@ -70,7 +69,7 @@ class BleScanManager constructor(private val bleManager: BleManager,
             scanIdling = idling
             scope.launch {
                 scanIdling?.let { idling ->
-                    flowDevice.collect {
+                    sharedFlowScanResult.collect {
                         idling.scanned = true
                     }
                 }

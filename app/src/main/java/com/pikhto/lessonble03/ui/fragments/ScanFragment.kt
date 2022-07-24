@@ -3,7 +3,6 @@ package com.pikhto.lessonble03.ui.fragments
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import androidx.core.view.MenuHost
 import androidx.fragment.app.Fragment
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
@@ -52,18 +51,19 @@ class ScanFragment : Fragment() {
             menuInflater.inflate(R.menu.menu_scan, menu)
             menu.findItem(R.id.action_scan)?.let { actionScan ->
                 lifecycleScope.launch {
-                    scanViewModel.stateFlowScanState.collect { state ->
+                    scanViewModel.stateFLowScanState.collect { state ->
                         when (state) {
                             BleScanManager.State.Stopped -> {
-                                actionScan.title = getString(R.string.start_scan)
+                                actionScan.title = getString(R.string.scan_start)
                                 actionScan.setIcon(R.drawable.ic_scan)
                             }
                             BleScanManager.State.Scanning -> {
-                                actionScan.title = getString(R.string.stop_scan)
+                                actionScan.title = getString(R.string.scan_stop)
                                 actionScan.setIcon(R.drawable.ic_stop)
                             }
                             BleScanManager.State.Error -> {
-
+                                actionScan.title = getString(R.string.scan_error, scanViewModel.scanError)
+                                actionScan.setIcon(R.drawable.ic_error)
                             }
                         }
                     }
@@ -117,7 +117,7 @@ class ScanFragment : Fragment() {
         }
 
         lifecycleScope.launch {
-            bleManager.flowScanDevice.collect { bluetoothDevice ->
+            bleManager.sharedFlowScanReulst.collect { bluetoothDevice ->
                 rvBtAdapter.addScanResult(bluetoothDevice)
             }
         }

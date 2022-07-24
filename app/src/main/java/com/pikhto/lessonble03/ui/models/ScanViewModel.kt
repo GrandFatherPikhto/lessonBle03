@@ -10,30 +10,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class ScanViewModel(bleManager: BleManager) : ViewModel() {
-    private val scanResults = mutableListOf<ScanResult>()
-
-    private val mutableSharedFlowScanResult = MutableSharedFlow<ScanResult>(replay = 100)
-    val sharedFlowScanResult get() = mutableSharedFlowScanResult.asSharedFlow()
-
-    private val mutableStateFlowScanState = MutableStateFlow(BleScanManager.State.Stopped)
-    val stateFlowScanState get() = mutableStateFlowScanState.asStateFlow()
-    val scanState get() = mutableStateFlowScanState.value
-
-    private val mutableStateFlowScanError = MutableStateFlow(-1)
-    val stateFlowScanError get() = mutableStateFlowScanError.asStateFlow()
-    val scanError get() = mutableStateFlowScanError.value
-
-    fun addScanResult(scanResult: ScanResult) {
-        if (!scanResults.map { it.device }.contains(scanResult.device)) {
-            mutableSharedFlowScanResult.tryEmit(scanResult)
-        }
-    }
-
-    fun changeScanState(scanState: BleScanManager.State) {
-        mutableStateFlowScanState.tryEmit(scanState)
-    }
-
-    fun changeScanError(errorCode: Int) {
-        mutableStateFlowScanError.tryEmit(errorCode)
-    }
+    val sharedFlowScanResult = bleManager
+    val stateFLowScanState   = bleManager.stateFlowScanState
+    val scanState            = bleManager.scanState
+    val stateFlowError       = bleManager.stateFlowScanError
+    val scanError            = bleManager.scanError
 }

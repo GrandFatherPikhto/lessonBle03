@@ -7,8 +7,8 @@
 
     <string name="unknown_device">Unknown Device</string>
     <string name="default_address" translatable="false">00:00:00:00:00:00</string>
-    <string name="start_scan">Scan</string>
-    <string name="stop_scan">Stop Scan</string>
+    <string name="scan_start">Scan</string>
+    <string name="scan_stop">Stop Scan</string>
     <string name="permission_granted">Permission %1$s is granted</string>
     <string name="permission_not_granted">Permission %1$s is not granted</string>
     <string name="description_bond_state">Bonding State</string>
@@ -16,4 +16,5 @@
     <string name="action_to_scanner">To scanner</string>
     <string name="description_connectable">Is BLE device connectable</string>
     <string name="rssi_title" translatable="false">RSSI: %1$d</string>
+    <string name="scan_error" translatable="false">Scan Error: %1$d</string>
 </resources>

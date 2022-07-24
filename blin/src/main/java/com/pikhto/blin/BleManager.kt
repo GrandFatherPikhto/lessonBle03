@@ -22,14 +22,14 @@ class BleManager constructor(private val context: Context,
     private val bleScanManager = BleScanManager(this, ioDispatcher)
     val scanner get() = bleScanManager
 
-    val flowScanState get() = bleScanManager.flowState
-    val scanState get()     = bleScanManager.flowState.value
+    val stateFlowScanState get() = bleScanManager.stateFlowScanState
+    val scanState get()     = bleScanManager.stateFlowScanState.value
 
-    val flowScanDevice get() = bleScanManager.flowDevice
+    val sharedFlowScanReulst get() = bleScanManager.sharedFlowScanResult
     val scannedDevices get() = bleScanManager.devices
 
-    val flowScanError get() = bleScanManager.stateFlowError
-    val scanError get()     = bleScanManager.valueError
+    val stateFlowScanError get() = bleScanManager.stateFlowError
+    val scanError get()     = bleScanManager.scanError
 
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
