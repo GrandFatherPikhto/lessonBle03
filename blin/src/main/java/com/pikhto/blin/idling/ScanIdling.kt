@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.properties.Delegates
 
 class ScanIdling (private val bleManager: BleManager): IdlingResource {
 
@@ -23,18 +24,25 @@ class ScanIdling (private val bleManager: BleManager): IdlingResource {
 
     private var isIdling = AtomicBoolean(true)
 
+    var idling by Delegates.observable(false) { _, _, newState ->
+        isIdling.set(newState)
+        if (newState) {
+            resourceCallback?.let { callback ->
+                callback.onTransitionToIdle()
+            }
+        }
+    }
+
+
     init {
         scope.launch {
             bleManager.stateFlowScanState.collect { state ->
                 when(state) {
                     BleScanManager.State.Stopped -> {
-                        isIdling.set(true)
-                        resourceCallback?.let { callback ->
-                            callback.onTransitionToIdle()
-                        }
+                        idling = true
                     }
                     BleScanManager.State.Scanning -> {
-                        isIdling.set(false)
+                        idling = false
                     }
                     else -> { }
                 }
@@ -42,12 +50,7 @@ class ScanIdling (private val bleManager: BleManager): IdlingResource {
         }
         scope.launch {
             bleManager.sharedFlowScanReulst.collect {
-                if (it.isConnectable) {
-                    isIdling.set(true)
-                    resourceCallback?.let { callback ->
-                        callback.onTransitionToIdle()
-                    }
-                }
+                idling = it.isConnectable
             }
         }
     }
