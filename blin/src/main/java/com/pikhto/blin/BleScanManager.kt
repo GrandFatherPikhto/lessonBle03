@@ -14,6 +14,7 @@ import android.os.ParcelUuid
 import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import com.pikhto.blin.idling.ScanIdling
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
@@ -61,22 +62,7 @@ class BleScanManager constructor(private val bleManager: BleManager,
     private val names = mutableListOf<String>()
     private val uuids = mutableListOf<ParcelUuid>()
 
-    private var scanIdling:ScanIdling? = null
-
-    fun getScanIdling() : ScanIdling {
-        val idling = ScanIdling.getInstance()
-        if (scanIdling == null) {
-            scanIdling = idling
-            scope.launch {
-                scanIdling?.let { idling ->
-                    sharedFlowScanResult.collect {
-                        idling.scanned = true
-                    }
-                }
-            }
-        }
-        return idling
-    }
+    fun getScanIdling() = ScanIdling.getInstance(bleManager)
 
     init {
         initScanSettings()
@@ -94,8 +80,6 @@ class BleScanManager constructor(private val bleManager: BleManager,
         if (state == State.Error) {
             mutableStateFlowScanning.tryEmit(State.Stopped)
         }
-
-        scanIdling?.scanned = false
 
         if (state == State.Stopped) {
             // devices.clear()

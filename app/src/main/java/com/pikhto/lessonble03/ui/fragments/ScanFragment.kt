@@ -17,7 +17,6 @@ import com.pikhto.lessonble03.R
 import com.pikhto.lessonble03.databinding.FragmentScanBinding
 import com.pikhto.lessonble03.helper.linkMenu
 import com.pikhto.lessonble03.ui.fragments.adapters.RvBtAdapter
-import com.pikhto.lessonble03.ui.models.BleViewModelProviderFactory
 import com.pikhto.lessonble03.ui.models.MainActivityViewModel
 import com.pikhto.lessonble03.ui.models.ScanViewModel
 import kotlinx.coroutines.launch
@@ -37,14 +36,9 @@ class ScanFragment : Fragment() {
     private val rvBtAdapter = RvBtAdapter()
 
     private val mainActivityViewModel by activityViewModels<MainActivityViewModel>()
-    private val scanViewModel by viewModels<ScanViewModel> {
-        BleViewModelProviderFactory(requireActivity().application)
-    }
+    private val scanViewModel by viewModels<ScanViewModel>()
 
-    private val _bleManager:BleManager? by lazy {
-        (requireContext().applicationContext as LessonBle03App).bleManager
-    }
-    private val bleManager get() = _bleManager!!
+    private lateinit var bleManager:BleManager
 
     private val menuProvider = object : MenuProvider {
         override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -77,12 +71,14 @@ class ScanFragment : Fragment() {
                     when(scanViewModel.scanState) {
                         BleScanManager.State.Stopped -> {
                             bleManager.startScan(stopTimeout = 10000L)
+                            scanViewModel.scanPressed = true
                         }
                         BleScanManager.State.Scanning -> {
                             bleManager.stopScan()
+                            scanViewModel.scanPressed = false
                         }
                         BleScanManager.State.Error -> {
-
+                            scanViewModel.scanPressed = false
                         }
                     }
                     true
@@ -104,6 +100,9 @@ class ScanFragment : Fragment() {
     ): View {
 
         _binding = FragmentScanBinding.inflate(inflater, container, false)
+        bleManager = (requireContext().applicationContext as LessonBle03App).bleManager!!
+        scanViewModel.changeBleManager(bleManager)
+
         Log.d(logTag, "onCreateView(${(requireContext().applicationContext as LessonBle03App).bleManager})")
         linkMenu(true, menuProvider)
         binding.apply {
@@ -120,6 +119,10 @@ class ScanFragment : Fragment() {
             bleManager.sharedFlowScanReulst.collect { bluetoothDevice ->
                 rvBtAdapter.addScanResult(bluetoothDevice)
             }
+        }
+
+        if (scanViewModel.scanPressed) {
+            bleManager.startScan(stopTimeout = 10000L)
         }
 
         return binding.root

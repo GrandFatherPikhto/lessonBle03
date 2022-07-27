@@ -2,17 +2,40 @@ package com.pikhto.lessonble03.ui.models
 
 import android.bluetooth.le.ScanResult
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.pikhto.blin.BleManager
 import com.pikhto.blin.BleScanManager
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
-class ScanViewModel(bleManager: BleManager) : ViewModel() {
-    val sharedFlowScanResult = bleManager
-    val stateFLowScanState   = bleManager.stateFlowScanState
-    val scanState            = bleManager.scanState
-    val stateFlowError       = bleManager.stateFlowScanError
-    val scanError            = bleManager.scanError
+class ScanViewModel() : ViewModel() {
+    private val mutableSharedFlowScanResult = MutableSharedFlow<ScanResult>()
+    val sharedFlowScanResult get() = mutableSharedFlowScanResult.asSharedFlow()
+
+    private val mutableStateFlowScanState = MutableStateFlow(BleScanManager.State.Stopped)
+    val stateFLowScanState   get() = mutableStateFlowScanState.asSharedFlow()
+    val scanState            get() = mutableStateFlowScanState.value
+
+    private val mutableStateFlowScanError = MutableStateFlow(-1)
+    val stateFlowError       get() = mutableStateFlowScanError.asSharedFlow()
+    val scanError            get() = mutableStateFlowScanError.value
+    var scanPressed          = false
+
+    fun changeBleManager(bleManager: BleManager) {
+        viewModelScope.launch {
+            bleManager.sharedFlowScanReulst.collect {
+                mutableSharedFlowScanResult.tryEmit(it)
+            }
+        }
+        viewModelScope.launch {
+            bleManager.stateFlowScanState.collect {
+                mutableStateFlowScanState.tryEmit(it)
+            }
+        }
+        viewModelScope.launch {
+            bleManager.stateFlowScanError.collect {
+                mutableStateFlowScanError.tryEmit(it)
+            }
+        }
+    }
 }
