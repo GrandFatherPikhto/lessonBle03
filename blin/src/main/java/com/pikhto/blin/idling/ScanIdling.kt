@@ -27,9 +27,7 @@ class ScanIdling (private val bleManager: BleManager): IdlingResource {
     var idling by Delegates.observable(false) { _, _, newState ->
         isIdling.set(newState)
         if (newState) {
-            resourceCallback?.let { callback ->
-                callback.onTransitionToIdle()
-            }
+            resourceCallback?.onTransitionToIdle()
         }
     }
 
