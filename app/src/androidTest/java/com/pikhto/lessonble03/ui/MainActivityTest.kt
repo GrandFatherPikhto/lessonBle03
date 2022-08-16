@@ -68,7 +68,7 @@ class MainActivityTest {
         assertTrue(bleManager.scanner.devices.isNotEmpty())
 
         onView(withText(bleManager.scanner.devices[0].address)).perform(click())
-        onView(withId(R.id.cl_ble_device)).check(matches(isDisplayed()))
+        onView(withId(R.id.cl_ble_device_main)).check(matches(isDisplayed()))
         onView(withId(R.id.tv_device_address))
             .check(matches(withText(bleManager.scanner.devices[0].address)))
         onView(withId(R.id.tv_device_name))
